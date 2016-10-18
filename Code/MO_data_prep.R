@@ -62,4 +62,5 @@ MO_data <- MO_data %>%
          proficent_perc = proficent/reported,
          advanced_perc = advanced/reported)
 
-#####
+#####Merge with ccd file (download from aws and locate in your directory) see "CCD_prep" for specifics
+
