@@ -61,24 +61,25 @@ MO_data_dsg$TYPE[MO_data_dsg$TYPE=="IEP_student"] <-"iep"
 MO_data_dsg$TYPE[MO_data_dsg$TYPE=="LEP/ELL Students"] <-"ell"
 MO_data_dsg$TYPE[MO_data_dsg$TYPE=="Map Free and Reduced Lunch"] <-"frl"
 MO_data_dsg$TYPE[MO_data_dsg$TYPE=="White(not Hispanic)"] <-"white"
+#Dissagragation by subject example
 
-newdat <- filter(MO_data_dsg, CONTENT_AREA == 'Eng. Language Arts')
+#newdat <- filter(MO_data_dsg, CONTENT_AREA == 'Eng. Language Arts')
 
-library(reshape2)
-newdat <- newdat[,-4]
+#library(reshape2)
+#newdat <- newdat[,-4]
 ##calculate proportions by 
-newdat <- newdat %>%
-          mutate(below_basic_perc = below_basic/reported,
-                 basic_perc = basic/reported,
-                 proficent_perc = proficent/reported,
-                 advanced_perc = advanced/reported)
+#newdat <- newdat %>%
+#          mutate(below_basic_perc = below_basic/reported,
+#                 basic_perc = basic/reported,
+#                 proficent_perc = proficent/reported,
+#                 advanced_perc = advanced/reported)
 
 #This data is good for graphing with the subgroups and year handles.  But if you want to convert
 #to wide use the following code:
-table(newdat$TYPE)
+#table(newdat$TYPE)
 
-wdata <- reshape(newdat, 
-             timevar = "TYPE",
-             idvar = c("SCHOOL_CODE","SCHOOL_NAME","YEAR"),
-             direction = "wide")
+#wdata <- reshape(newdat, 
+#             timevar = "TYPE",
+#             idvar = c("SCHOOL_CODE","SCHOOL_NAME","YEAR"),
+#             direction = "wide")
 

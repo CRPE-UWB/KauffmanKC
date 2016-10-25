@@ -72,7 +72,117 @@ data13 <- data13 %>%
          type=TYPE,status=STATUS,ulocal=ULOCAL,latcod=LATCOD,loncod=LONCOD,level=LEVEL,magnet=MAGNET,chartr=CHARTR,totfrl=TOTFRL,
          member=MEMBER,am=AM,asian=ASIAN,latino=HISP,black=BLACK,white=WHITE,pacific=PACIFIC,tr=TR,toteth=TOTETH)
 data13$year <- 2014
-###append and save 
+###append and calculate proportions and other clean_up
 ccd_2010_14 <- rbind(data09,data10, data11, data12, data13)
-saveRDS(ccd_2010_14, file="~/Google Drive/CRPE/ccd/ccd_2010_14.Rda")
+ccd_2010_14 <- data.frame(ccd_2010_14)
+#Clean up missing values 
+##fix missing values
+ccd_2010_14[ ,]  <- lapply(ccd_2010_14[ ,] , 
+                       FUN = function(x) {x[x == -1] <- NA; x})
+ccd_2010_14[ ,]  <- lapply(ccd_2010_14[ ,] , 
+                       FUN = function(x) {x[x == -2] <- NA; x})
+ccd_2010_14[ ,]  <- lapply(ccd_2010_14[ ,] , 
+                       FUN = function(x) {x[x == -9] <- NA; x})
+#create proportions
+ccd_2010_14 <- ccd_2010_14 %>%
+                mutate(propblack = black/member,
+                       proplatin = latino/member,
+                       propasian = (asian+pacific)/member,
+                       propwhite = white/member,
+                       propfrl = totfrl/member
+                       )
+# Prep other variables
+summary(ccd_2010_14$ulocal)
+#Use these codes
+#ULOCAL        24     AN     NCES urban-centric locale code.  
+# 11 = City, Large
+# 12 = City, Mid-size
+# 13 = City, Small
+# 21 = Suburb, Large
+# 22 = Suburb, Mid-size
+# 23 = Suburb, Small
+# 31 = Town, Fringe
+# 32 = Town, Distant
+# 33 = Town, Remote
+# 41 = Rural, Fringe
+# 42 = Rural, Distant
+# 43 = Rural, Remote
+
+
+summary(ccd_2010_14$ulocal)
+
+
+ccd_2010_14$urban <- ifelse(ccd_2010_14$ulocal == 11 | ccd_2010_14$ulocal == 12 | ccd_2010_14$ulocal == 13, "urban",
+                         ifelse(is.na(ccd_2010_14$ulocal), "missing","not urban"))
+
+ccd_2010_14$urban[is.na(ccd_2010_14$urban)] <- "missing"
+
+table(ccd_2010_14$urban)
+#########
+#Use stata file to locate names created by Thiago using stata
+
+ccd_2010_14$notschool <- tolower(ccd_2010_14$schnam)
+# online home schools 
+ccd_2010_14[grep("online | on-line",ccd_2010_14$notschool),]$notschool = "1"  
+
+ccd_2010_14[grep("\\<distance\\>",ccd_2010_14$notschool),]$notschool = "1"  
+ccd_2010_14[grep("home sch",ccd_2010_14$notschool),]$notschool = "1"  
+ccd_2010_14[grep("\\<homelink\\>",ccd_2010_14$notschool),]$notschool = "1"  
+ccd_2010_14[grep("\\<homebound\\>",ccd_2010_14$notschool),]$notschool = "1"  
+ccd_2010_14[grep("\\<homeworks\\>",ccd_2010_14$notschool),]$notschool = "1"  
+ccd_2010_14[grep("\\<home connections\\>",ccd_2010_14$notschool),]$notschool = "1"  
+ccd_2010_14[grep("\\<virtual\\>",ccd_2010_14$notschool),]$notschool = "1"  
+#juvinile detention/ hospital/detention centers 
+ccd_2010_14[grep("det ctr",ccd_2010_14$notschool),]$notschool = "1" 
+ccd_2010_14[grep("\\<juvenile\\>",ccd_2010_14$notschool),]$notschool = "1" 
+#ccd_2010_14[grep("\\<correct\\>",ccd_2010_14$notschool),]$notschool = "1" 
+ccd_2010_14[grep("\\<detention\\>",ccd_2010_14$notschool),]$notschool = "1" 
+ccd_2010_14[grep("\\<j j a e p\\>",ccd_2010_14$notschool),]$notschool = "1" 
+ccd_2010_14[grep("\\<jjaep\\>",ccd_2010_14$notschool),]$notschool = "1" 
+ccd_2010_14[grep("\\<jail\\>",ccd_2010_14$notschool),]$notschool = "1" 
+ccd_2010_14[grep("\\<treatment\\>",ccd_2010_14$notschool),]$notschool = "1" 
+ccd_2010_14[grep("\\<hospital\\>",ccd_2010_14$notschool),]$notschool = "1" 
+ccd_2010_14[grep("\\<hospitality\\>",ccd_2010_14$notschool),]$notschool = "1" 
+ccd_2010_14[grep("\\<deaf\\>",ccd_2010_14$notschool),]$notschool = "1" 
+ccd_2010_14[grep("\\<blind\\>",ccd_2010_14$notschool),]$notschool = "1" 
+ccd_2010_14[grep("\\<therapy\\>",ccd_2010_14$notschool),]$notschool = "1" 
+#ccd_2010_14[grep("facility",ccd_2010_14$notschool),]$notschool = "1" 
+#$ccd_2010_14[grep("facilities",ccd_2010_14$notschool),]$notschool = "1" 
+#ccd_2010_14[grep("transition",ccd_2010_14$notschool),]$notschool = "1" 
+#special ed
+ccd_2010_14[grep("\\<life skills\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<skills center\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<special\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<sp ed\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<spcl needs\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("independent stud",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<independent lrn\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<independent learning\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<independent alternative\\>",ccd_2010_14$notschool),]$notschool = "1" ##
+ccd_2010_14[grep("\\<independent technical real access\\>",ccd_2010_14$notschool),]$notschool = "1"
+#ccd_2010_14[grep("\\<continu\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<alternative\\>",ccd_2010_14$notschool),]$notschool = "1" ##
+ccd_2010_14[grep("\\<alt\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<adult\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<learning support\\>",ccd_2010_14$notschool),]$notschool = "1"
+
+ccd_2010_14[grep("\\<lrn ctr\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<lrn center\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<learning ctr\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<learning center\\>",ccd_2010_14$notschool),]$notschool = "1"
+
+ccd_2010_14[grep("\\<program\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<preschool\\>",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("\\<nursery\\>",ccd_2010_14$notschool),]$notschool = "1"
+#ccd_2010_14[grep("\\<renew acceler\\>",ccd_2010_14$notschool),]$notschool = "1"
+
+ccd_2010_14[grep("tech. ctr.",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("ctr.",ccd_2010_14$notschool),]$notschool = "1"
+ccd_2010_14[grep("coop.",ccd_2010_14$notschool),]$notschool = "1"
+
+ccd_2010_14$notschool <- ifelse(ccd_2010_14$notschool == "1" , "1","0")
+table(ccd_2010_14$notschool)
+
+#########Save file 
+saveRDS(ccd_2010_14, file="~/Google Drive/CRPE/KauffmanKC/Data/ccd/ccd_2010_14.Rda")
 #########

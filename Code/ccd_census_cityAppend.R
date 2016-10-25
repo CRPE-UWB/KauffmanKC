@@ -14,13 +14,6 @@ rm(list=ls())
 data <- readRDS("~/Google Drive/CRPE/KauffmanKC/Data/ccd/ccd_2010_14.Rda" )
 ##We only want MO 
 MO_data <- data.frame(filter(data, fipst==29))
-##fix missing values
-MO_data[ ,]  <- lapply(MO_data[ ,] , 
-                           FUN = function(x) {x[x == -1] <- NA; x})
-MO_data[ ,]  <- lapply(MO_data[ ,] , 
-                           FUN = function(x) {x[x == -2] <- NA; x})
-MO_data[ ,]  <- lapply(MO_data[ ,] , 
-                           FUN = function(x) {x[x == -9] <- NA; x})
 
 ## STEP 2: Load geographic data
 #read in Census Places polygons
