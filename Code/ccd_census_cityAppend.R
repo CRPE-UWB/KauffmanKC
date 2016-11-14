@@ -12,13 +12,18 @@ rm(list=ls())
 
 ## STEP1: Get your data ready
 data <- readRDS("~/Google Drive/CRPE/KauffmanKC/Data/ccd/ccd_2010_14.Rda" )
+
 ##We only want MO 
 MO_data <- data.frame(filter(data, fipst==29))
 
 ## STEP 2: Load geographic data
 #read in Census Places polygons
 MO <- readOGR("/Users/crpeadmin/Google Drive/CRPE/KauffmanKC/Data/shapefiles/shp_MO", "tl_2011_29_place")
+
+MO <- readOGR("/Users/crpeadmin/Google Drive/CRPE/KauffmanKC/tl_2016_29_unsd", "tl_2016_29_unsd")
 #combine all states' shapefiles 
+summary(MO$NAME)
+plot(MO)
 ##first, need to change the polygon IDs so that they are not duplicated across shapefile sets
 MO1 <- spChFIDs(MO, as.character(MO$GEOID))
 
@@ -43,3 +48,5 @@ schools <- as.data.frame(MO_data)
 ####
 saveRDS(schools, "~/Google Drive/CRPE/KauffmanKC/Data/ccd/ccd_2010_2014_city.rda")
 ####
+
+tl_2016_29_unsd.shp
