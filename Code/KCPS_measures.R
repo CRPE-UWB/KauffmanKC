@@ -350,6 +350,8 @@ names(stagnant)[names(stagnant)=="district.new"] <- "district"
 
 ####################################################################
 ### (3) GAINS
+## Jose: Used lmer specification to look at gains
+##Looked at gains in terms of the school average by year and their deviation from the overall average (+ or - ) 
 
 
 ## Adjusted gains measure with clustered standard errors (Chingos review, 5/4/15, + convo w/ BG, 5/6/15)
@@ -400,57 +402,61 @@ mdata$time <- mdata$year - min(mdata$year)
 mdata <- data.table(mdata, key="year")
 mdata[,subject.std:=scale(subject),by=year]
 
-data1 <- mdata[which(mdata$district.new==district[1]),]
+#data1 <- mdata[which(mdata$district.new==district[1]),]
+#compared the fixed effects speciofication of time by using "factor" 
+#if you use these function you have to take out factor
 
-equation <- subject.std ~ as.factor(time) + propfrl + propwhite + propblack + prophisp + propasian + factor(level) + enroll
+#equation <- subject.std ~ as.factor(time) + propfrl + propwhite + propblack + prophisp + propasian + factor(level) + enroll
 
-lm1 <- lm(equation, data=data1)
+#Use:
+#equation <- subject.std ~ time + propfrl + propwhite + propblack + prophisp + propasian + factor(level) + enroll
+#lm1 <- lm(equation, data=data1)
 
-se1 <- cluster.se(lm1, data1$seasch)
-
-
-b1.adj <- se1[[1]][2,1]
-p1.adj <- se1[[1]][2,4]
+#se1 <- cluster.se(lm1, data1$seasch)
 
 
+#b1.adj <- se1[[1]][2,1]
+#p1.adj <- se1[[1]][2,4]
 
-gains.b.adj <- c(b1.adj) #beta for year 
-gains.p.adj <- c(p1.adj) #p-value
 
+
+#gains.b.adj <- c(b1.adj) #beta for year 
+#gains.p.adj <- c(p1.adj) #p-value
+#
 ######
 #fixed effects specification
-MLexamp.3 <- glm(equation, data = data1)
-display(MLexamp.3)
-AIC(MLexamp.3)
+#MLexamp.3 <- glm(equation, data = data1)
+#display(MLexamp.3)
+#AIC(MLexamp.3)
 #lme
-MLexamp.6 <- lmer(subject.std ~ time + propfrl + propwhite + propblack + prophisp + propasian + factor(level) + enroll + (1 | seasch), data = data1)
-display(MLexamp.6)
+#MLexamp.6 <- lmer(subject.std ~ time + propfrl + propwhite + propblack + prophisp + propasian + factor(level) + enroll + (1 | seasch), data = data1)
+#display(MLexamp.6)
 
-fm06 <- lmer(subject.std ~ time + propfrl + propwhite + propblack + prophisp + propasian + factor(level) + enroll + (1 + time|seasch), data1,REML=FALSE)
-display(fm06)
-summary(fm06)
-head(ranef(fm06)[["seasch"]])
+#fm06 <- lmer(subject.std ~ time + propfrl + propwhite + propblack + prophisp + propasian + factor(level) + enroll + (1 + time|seasch), data1,REML=FALSE)
+#display(fm06)
+#summary(fm06)
+#head(ranef(fm06)[["seasch"]])
 ####
-model.b <- lmer(subject.std ~ time + (1 + time|seasch), data1,REML=FALSE)
-display(model.b)
+#model.b <- lmer(subject.std ~ time + (1 + time|seasch), data1,REML=FALSE)
+#display(model.b)
 #########
 #install.packages("nlme")
 library(nlme)
 
-model.b <- lme(subject.std ~ time, data=data1, random= ~ time | seasch, method="ML")
-summary(model.b)
+#model.b <- lme(subject.std ~ time, data=data1, random= ~ time | seasch, method="ML")
+#summary(model.b)
 
 
-fixef.b <- fixef(model.b)
+#fixef.b <- fixef(model.b)
 
 
-fit.b <- fixef.b[[1]] + seq(0, 6)*fixef.b[[2]]
-x <- 2010:2016
-plot(x, fit.b, ylim=c(-1, -.6), type="b", 
-     ylab="predicted gains in SD Units", xlab="Year")   
-title("Model B \n Unconditional growth model")
+#fit.b <- fixef.b[[1]] + seq(0, 6)*fixef.b[[2]]
+#x <- 2010:2016
+#plot(x, fit.b, ylim=c(-1, -.6), type="b", 
+#     ylab="predicted gains in SD Units", xlab="Year")   
+#title("Model B \n Unconditional growth model")
 
-##
+##USED THIS MODEL for gains with more than 3 years of data
 model.c <- lme(subject.std ~ time + propfrl + propwhite + propblack + prophisp + propasian + factor(level) + enroll, data=data1, random= ~ time | seasch, method="ML")
 summary(model.c)
 
